@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Expense Tracker</title>
+<style>
+:root{--p:#4f46e5;--p2:#4338ca;--bg:#eef1f8;--tx:#0f172a;--mu:#64748b;--bd:#cbd5e1;--ok:#15803d;--er:#dc2626}
+*{box-sizing:border-box;margin:0;padding:0;font-family:Inter,Roboto,'Segoe UI',system-ui,sans-serif}
+body{background:var(--bg);color:var(--tx);min-height:100vh}
+.hide{display:none!important}
+.mt{margin-top:12px}
+select,input,textarea{width:100%;padding:13px 16px;border:1px solid var(--bd);border-radius:16px;font-size:16px;background:#fff;color:var(--tx)}
+select{appearance:none;-webkit-appearance:none;padding-right:40px;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%230f172a' stroke-width='2' viewBox='0 0 24 24'><path d='m6 9 6 6 6-6'/></svg>");background-repeat:no-repeat;background-position:right 14px center}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--p);border-color:transparent}
+label{display:block;font-size:14px;color:#475569;margin:14px 0 6px}
+button{cursor:pointer;border:0;font-size:15px;font-weight:600;font-family:inherit}
+.btn{background:var(--p);color:#fff;border-radius:16px;padding:13px 20px}.btn:hover{background:var(--p2)}
+.btn.full{width:100%}
+.ghost{background:#fff;border:1px solid var(--bd);border-radius:16px;padding:11px 16px;color:var(--tx)}
+.chip{background:#eceefe;color:var(--p);border-radius:14px;padding:12px 16px;font-size:15px}
+.sm{padding:8px 12px;font-size:13px;border-radius:12px}
+.red{background:#fee2e2;color:var(--er)}
+.logout{background:#fee2e2;color:var(--er);border:1px solid #fecaca;border-radius:16px;padding:11px 16px;font-size:18px}
+/* login */
+#login{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#4338ca,#7c3aed);padding:16px}
+.lbox{background:#fff;padding:32px;border-radius:28px;width:100%;max-width:400px;box-shadow:0 20px 50px rgba(0,0,0,.25)}
+.lbox h2{text-align:center;color:var(--p);margin-bottom:4px}.lbox p{text-align:center;color:var(--mu);margin-bottom:10px;font-size:14px}
+/* layout */
+.wrap{max-width:680px;margin:0 auto;padding:16px 16px 70px}
+.head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+h1{font-size:30px;letter-spacing:-1px;margin-top:8px}
+.hr{display:flex;flex-direction:column;align-items:flex-end;gap:10px;flex:1;min-width:210px}
+.hr .acts{display:flex;gap:8px}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
+.card{position:relative;overflow:hidden;background:#fff;border-radius:24px;padding:18px;box-shadow:0 2px 10px rgba(30,41,59,.06)}
+.card::after{content:"";position:absolute;top:-30px;right:-30px;width:100px;height:100px;border-radius:50%;background:var(--c)}
+.card small{display:block;color:var(--mu);letter-spacing:.8px;font-size:13px;text-transform:uppercase}
+.card b{display:block;font-size:26px;margin-top:8px;letter-spacing:-.5px}
+.panel{background:#fff;border-radius:24px;padding:18px;box-shadow:0 2px 10px rgba(30,41,59,.06);margin-bottom:16px}
+.panel h3{font-size:20px;letter-spacing:-.4px;margin-bottom:12px}
+.chips{display:flex;gap:10px;flex-wrap:wrap}
+.pos{color:var(--ok)}.neg{color:var(--er)}
+.empty{text-align:center;color:var(--mu);padding:30px 8px}
+.tx{display:flex;gap:12px;align-items:center;padding:12px 0;border-top:1px solid #eef2f7}.tx:first-child{border-top:0}
+.ic{width:42px;height:42px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;flex:none}
+.ic.i{background:#dcfce7;color:var(--ok)}.ic.e{background:#fee2e2;color:var(--er)}
+.tm{flex:1;min-width:0}.tm b{display:block}.tm small{color:var(--mu);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ta{text-align:right;flex:none}.ta b{display:block;font-size:16px}
+.ta div{margin-top:4px;display:flex;gap:6px;justify-content:flex-end}
+.ta button{background:#f1f5f9;border-radius:10px;padding:5px 9px;font-size:13px}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px}
+.bar{height:8px;background:#e2e8f0;border-radius:99px;overflow:hidden;margin-top:6px}.bar i{display:block;height:100%}
+.tag{padding:3px 10px;border-radius:99px;font-size:12px;background:#e0e7ff;color:var(--p)}
+.tag.i{background:#dcfce7;color:var(--ok)}.tag.e{background:#fee2e2;color:var(--er)}
+/* settings */
+.ucard{border-top:1px solid #eef2f7;padding:14px 0}.ucard:first-of-type{border-top:0}
+.ucard .r1{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.perm{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+.perm span{font-size:12px;padding:4px 10px;border-radius:99px;background:#f1f5f9;color:#94a3b8;text-decoration:line-through}
+.perm span.on{background:#dcfce7;color:var(--ok);text-decoration:none}
+.hint{color:var(--mu);font-size:14px;margin-bottom:12px}
+.sec{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px}.sec h3{margin:0}
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(15,23,42,.45);backdrop-filter:blur(3px);display:flex;align-items:flex-end;justify-content:center;padding:14px;z-index:60}
+.mbox{background:#fff;border-radius:28px;padding:22px;width:100%;max-width:560px;max-height:90vh;overflow:auto}
+.mbox h3{font-size:26px;letter-spacing:-.6px;margin-bottom:4px}.mbox .sub{color:var(--mu);font-size:16px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.mfoot{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
+.newbox{background:#f8fafc;border:1px dashed #94a3b8;border-radius:16px;padding:2px 14px 14px;margin-top:10px}
+.chk{display:flex;align-items:center;gap:10px;margin-top:10px;font-size:15px}.chk input{width:20px;height:20px;padding:0}
+.crow{display:flex;gap:8px;align-items:center;margin-bottom:10px}
+.crow input{flex:1;min-width:0;padding:10px 12px}.crow select{width:112px;padding:10px 30px 10px 12px;font-size:14px;flex:none}
+.crow button{border-radius:10px;padding:9px 11px;flex:none}
+.up{font-size:13px;font-weight:700;color:#475569;letter-spacing:.6px;margin:20px 0 10px}
+/* drawer */
+#handle{position:fixed;left:0;top:52%;background:linear-gradient(180deg,#4f46e5,#7c3aed);color:#fff;border-radius:0 16px 16px 0;padding:22px 12px;font-size:20px;z-index:40}
+#drawer{position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:70;display:flex}
+#drawer .dp{width:270px;max-width:80%;background:#fff;padding:22px 16px;display:flex;flex-direction:column;gap:8px}
+#drawer .dp button{text-align:left;background:#f1f5f9;border-radius:14px;padding:14px 16px;font-size:16px;color:var(--tx)}
+#drawer .dp button.on{background:#eceefe;color:var(--p)}
+#drawer .dp h4{font-size:18px;color:var(--p);margin-bottom:8px}
+#toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;padding:11px 20px;border-radius:12px;z-index:99;font-size:14px;max-width:90%}
+</style>
+</head>
+<body>
+
+<div id="login">
+  <div class="lbox">
+    <h2>💰 Expense Tracker</h2><p>Sign in to continue</p>
+    <label>Username</label><input id="lu" autocomplete="username">
+    <label>Password</label><input id="lp" type="password" autocomplete="current-password">
+    <button class="btn full mt" id="lbtn">Login</button>
+  </div>
+</div>
+
+<div id="app" class="wrap hide">
+  <div class="head">
+    <h1 id="title">Expenses</h1>
+    <div class="hr"><div id="whoBox" style="width:100%"></div>
+      <div class="acts"><button class="ghost" id="rf">↻ Refresh</button><button class="logout" id="lo" title="Logout">⎋</button></div>
+    </div>
+  </div>
+  <div id="view"></div>
+</div>
+<button id="handle" class="hide">›</button>
+<div id="drawer" class="hide"><div class="dp" id="dp"></div><div style="flex:1" id="dclose"></div></div>
+<div id="modal" class="modal hide"><div class="mbox" id="mbox"></div></div>
+<div id="toast" class="hide"></div>
+
+<script>
+// ====== PASTE YOUR APPS SCRIPT /exec URL HERE ======
+var API_URL = 'PASTE_YOUR_EXEC_URL_HERE';
+
+var S = { user: null, cats: [], exps: [], users: [], cred: null, view: 'home', who: 'me', m: '', c: '', q: '' };
+var PALETTE = ['#ef4444', '#3b82f6', '#f59e0b', '#8b5cf6', '#14b8a6', '#ec4899', '#64748b', '#16a34a'];
+var $ = function (id) { return document.getElementById(id); };
+var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); };
+var money = function (n) { return '₹' + Number(n || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
+var T = function (v) { return v === true || String(v).toUpperCase() === 'TRUE'; };
+function toast(m) { var t = $('toast'); t.textContent = m; t.classList.remove('hide'); setTimeout(function () { t.classList.add('hide'); }, 2500); }
+
+function api(action, data) {
+  var body = JSON.stringify({ action: action, username: S.cred.username, password: S.cred.password, data: data || {} });
+  return fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: body })
+    .then(function (r) { return r.json(); })
+    .catch(function () { return { ok: false, error: 'Cannot reach the server. Check API_URL and deployment access (Anyone).' }; });
+}
+function load() {
+  return api('getAll').then(function (r) {
+    if (!r.ok) { toast(r.error); return false; }
+    S.user = r.user; S.cats = r.categories || []; S.exps = r.expenses || []; S.users = r.users || [];
+    return true;
+  });
+}
+
+// ---------- Login / start ----------
+$('lbtn').onclick = doLogin;
+$('lp').addEventListener('keydown', function (e) { if (e.key === 'Enter') doLogin(); });
+function doLogin() {
+  S.cred = { username: $('lu').value.trim(), password: $('lp').value };
+  $('lbtn').textContent = 'Please wait...';
+  load().then(function (ok) {
+    $('lbtn').textContent = 'Login';
+    if (!ok) return;
+    sessionStorage.setItem('cred', JSON.stringify(S.cred));
+    start();
+  });
+}
+function start() {
+  $('login').classList.add('hide'); $('app').classList.remove('hide');
+  S.view = 'home'; S.who = 'me';
+  if (S.user.role === 'admin') $('handle').classList.remove('hide');
+  render();
+}
+$('lo').onclick = function () { sessionStorage.removeItem('cred'); location.reload(); };
+$('rf').onclick = function () { load().then(function (ok) { if (ok) { render(); toast('Refreshed'); } }); };
+
+// ---------- Drawer (admin) ----------
+$('handle').onclick = function () {
+  $('dp').innerHTML = '<h4>💰 Expense Tracker</h4><button data-v="home" class="' + (S.view === 'home' ? 'on' : '') + '">🧾 Expenses</button><button data-v="settings" class="' + (S.view === 'settings' ? 'on' : '') + '">⚙️ Settings</button>';
+  $('drawer').classList.remove('hide');
+  document.querySelectorAll('#dp [data-v]').forEach(function (b) { b.onclick = function () { S.view = b.dataset.v; $('drawer').classList.add('hide'); render(); }; });
+};
+$('dclose').onclick = function () { $('drawer').classList.add('hide'); };
+
+// ---------- Helpers ----------
+function catType(n) { var c = S.cats.find(function (x) { return x.Name === n; }); return c ? (c.Type || 'Expense') : 'Expense'; }
+function catColor(n) { var c = S.cats.find(function (x) { return x.Name === n; }); return c ? c.Color : '#64748b'; }
+function eType(e) { return e.Type || catType(e.Category); }
+function sum(list, type) { return list.filter(function (e) { return eType(e) === type; }).reduce(function (a, e) { return a + Number(e.Amount); }, 0); }
+function catOpts(sel) {
+  return ['Expense', 'Income'].map(function (t) {
+    var l = S.cats.filter(function (c) { return (c.Type || 'Expense') === t; });
+    if (!l.length) return '';
+    return '<optgroup label="' + t + '">' + l.map(function (c) { return '<option value="' + esc(c.Name) + '"' + (c.Name === sel ? ' selected' : '') + '>' + esc(c.Name) + '</option>'; }).join('') + '</optgroup>';
+  }).join('');
+}
+function scoped() {
+  var l = S.exps;
+  if (S.user.role === 'admin') {
+    if (S.who === 'me') l = l.filter(function (e) { return e.PaidBy === S.user.username; });
+    else if (S.who !== 'all') l = l.filter(function (e) { return e.PaidBy === S.who; });
+  }
+  return l;
+}
+function filtered() {
+  return scoped().filter(function (e) {
+    return (!S.m || String(e.Date).slice(0, 7) === S.m) && (!S.c || e.Category === S.c) && (!S.q || String(e.Note).toLowerCase().indexOf(S.q) >= 0);
+  }).sort(function (a, b) { return a.Date < b.Date ? 1 : -1; });
+}
+
+// ---------- Render ----------
+function render() {
+  if (S.view === 'settings' && S.user.role === 'admin') settings(); else { S.view = 'home'; home(); }
+}
+function whoBox() {
+  if (S.user.role !== 'admin' || S.view !== 'home') { $('whoBox').innerHTML = ''; return; }
+  var o = '<option value="me">👤 My data</option><option value="all">👥 All users</option>' + S.users.filter(function (u) { return u.Username !== S.user.username; }).map(function (u) { return '<option value="' + esc(u.Username) + '">👤 ' + esc(u.Name) + '</option>'; }).join('');
+  $('whoBox').innerHTML = '<select id="who">' + o + '</select>';
+  $('who').value = S.who;
+  $('who').onchange = function () { S.who = this.value; S.m = ''; fillFilters(); draw(); };
+}
+function home() {
+  $('title').textContent = 'Expenses'; whoBox();
+  if (!S.user.canViewExpenses) {
+    $('view').innerHTML = '<div class="panel"><p class="empty">You do not have permission to view entries. You can still add new ones.</p><button class="btn full" id="ba">+ Add entry</button></div>';
+    $('ba').onclick = function () { expForm(); };
+    return;
+  }
+  var chips = '<button class="chip" id="bx">↓ Ledger Excel</button><button class="chip" id="bp">↓ Ledger PDF</button>' + (S.user.canManageCategories ? '<button class="chip" id="bc">⚙ Categories</button>' : '');
+  $('view').innerHTML = '<div class="cards" id="cards"></div><div class="panel"><select id="fm"></select><select id="fc" class="mt"></select><input id="fq" class="mt" placeholder="Search note…"><div class="chips mt">' + chips + '</div><button class="btn mt" id="ba">+ Add entry</button></div><div class="panel"><h3>Transactions</h3><div id="tx"></div></div><div class="panel"><h3>Where the money went</h3><div id="brk"></div></div>';
+  fillFilters();
+  $('fm').onchange = function () { S.m = this.value; draw(); };
+  $('fc').onchange = function () { S.c = this.value; draw(); };
+  $('fq').oninput = function () { S.q = this.value.toLowerCase(); draw(); };
+  $('ba').onclick = function () { expForm(); };
+  $('bx').onclick = ledgerCsv; $('bp').onclick = ledgerPdf;
+  if ($('bc')) $('bc').onclick = catManage;
+  draw();
+}
+function fillFilters() {
+  if (!$('fm')) return;
+  var ms = {}; scoped().forEach(function (e) { ms[String(e.Date).slice(0, 7)] = 1; });
+  var keys = Object.keys(ms).filter(Boolean).sort().reverse();
+  if (S.m && keys.indexOf(S.m) < 0) S.m = '';
+  $('fm').innerHTML = '<option value="">All months</option>' + keys.map(function (k) {
+    var p = k.split('-'); var lb = new Date(+p[0], +p[1] - 1, 1).toLocaleString('en', { month: 'short', year: 'numeric' });
+    return '<option value="' + k + '"' + (k === S.m ? ' selected' : '') + '>' + lb + '</option>';
+  }).join('');
+  if (S.c && !S.cats.some(function (c) { return c.Name === S.c; })) S.c = '';
+  $('fc').innerHTML = '<option value="">All categories</option>' + catOpts(S.c);
+}
+function draw() {
+  var list = filtered(), inc = sum(list, 'Income'), exp = sum(list, 'Expense'), bal = inc - exp;
+  $('cards').innerHTML =
+    '<div class="card" style="--c:#dcfce7"><small>Income</small><b>' + money(inc) + '</b></div>' +
+    '<div class="card" style="--c:#fee2e2"><small>Expenses</small><b>' + money(exp) + '</b></div>' +
+    '<div class="card" style="--c:#e0e7ff"><small>Balance</small><b class="' + (bal >= 0 ? 'pos' : 'neg') + '">' + money(bal) + '</b></div>' +
+    '<div class="card" style="--c:#ede9fe"><small>Entries</small><b>' + list.length + '</b></div>';
+  var showBy = S.user.role === 'admin' && S.who === 'all';
+  $('tx').innerHTML = list.length ? list.map(function (e) {
+    var i = eType(e) === 'Income', b = '';
+    if (S.user.canEditExpenses) b += '<button onclick="expForm(\'' + e.ID + '\')">✎</button>';
+    if (S.user.canDeleteExpenses) b += '<button onclick="delExp(\'' + e.ID + '\')">🗑</button>';
+    return '<div class="tx"><div class="ic ' + (i ? 'i' : 'e') + '">' + (i ? '↓' : '↑') + '</div><div class="tm"><b><span class="dot" style="background:' + esc(catColor(e.Category)) + '"></span>' + esc(e.Category) + '</b><small>' + esc(e.Date) + (showBy ? ' · ' + esc(e.PaidBy) : '') + (e.Note ? ' · ' + esc(e.Note) : '') + '</small></div><div class="ta"><b class="' + (i ? 'pos' : 'neg') + '">' + (i ? '+' : '−') + money(e.Amount) + '</b><div>' + b + '</div></div></div>';
+  }).join('') : '<p class="empty">No entries yet. Tap “Add entry” to start.</p>';
+  $('brk').innerHTML = breakdown(list, 'Expense', exp) + (inc > 0 ? '<h3 style="margin:18px 0 12px">Where the money came from</h3>' + breakdown(list, 'Income', inc) : '');
+}
+function breakdown(list, type, total) {
+  var by = {}; list.filter(function (e) { return eType(e) === type; }).forEach(function (e) { by[e.Category] = (by[e.Category] || 0) + Number(e.Amount); });
+  var keys = Object.keys(by).sort(function (a, b) { return by[b] - by[a]; });
+  return keys.map(function (k) {
+    var pct = total ? by[k] / total * 100 : 0;
+    return '<div style="margin-bottom:14px"><div style="display:flex;justify-content:space-between"><span><span class="dot" style="background:' + esc(catColor(k)) + '"></span>' + esc(k) + '</span><b>' + money(by[k]) + '</b></div><div class="bar"><i style="width:' + pct + '%;background:' + esc(catColor(k)) + '"></i></div></div>';
+  }).join('') || '<p class="empty">No ' + type.toLowerCase() + 's in this view</p>';
+}
+
+// ---------- Add / edit entry ----------
+function expForm(id) {
+  var e = id ? S.exps.find(function (x) { return x.ID === id; }) : { Date: new Date().toISOString().slice(0, 10), Category: '', Amount: '', Note: '' };
+  var opts = catOpts(e.Category) + (S.user.canManageCategories ? '<option value="__new__">➕ New category…</option>' : '');
+  modal('<h3>' + (id ? 'Edit' : 'Add') + ' entry</h3><p class="sub">Income categories add to your balance, expense categories subtract.</p>' +
+    '<div class="row2"><div><label>Date</label><input type="date" id="xd" value="' + esc(e.Date) + '"></div><div><label>Amount (₹)</label><input type="number" inputmode="decimal" id="xa" value="' + esc(e.Amount) + '"></div></div>' +
+    '<label>Category</label><select id="xc">' + opts + '</select>' +
+    '<div id="newcat" class="newbox hide"><label>New category name</label><input id="nn" placeholder="e.g. Freelance, Rent"><label>This category is for</label><select id="nt"><option value="Expense">Expense</option><option value="Income">Income</option></select></div>' +
+    '<label>Note</label><input id="xn" placeholder="Optional" value="' + esc(e.Note) + '">' +
+    '<div class="mfoot"><button class="ghost" id="mc">Cancel</button><button class="btn" id="ms">Save</button></div>');
+  var sync = function () { $('newcat').classList.toggle('hide', $('xc').value !== '__new__'); };
+  $('xc').onchange = sync; sync();
+  $('mc').onclick = closeModal;
+  $('ms').onclick = function () {
+    var d = { id: id, date: $('xd').value, category: $('xc').value, amount: $('xa').value, note: $('xn').value };
+    if (!d.date || !d.category || !d.amount) return toast('Fill date, amount and category');
+    var act = id ? 'updateExpense' : 'addExpense';
+    if (d.category === '__new__') {
+      var nm = $('nn').value.trim(), nt = $('nt').value;
+      if (!nm) return toast('Enter the new category name');
+      d.category = nm; d.type = nt;
+      return api('addCategory', { name: nm, color: PALETTE[S.cats.length % PALETTE.length], type: nt }).then(function (r) {
+        if (!r.ok) return toast(r.error);
+        save(act, d);
+      });
+    }
+    d.type = catType(d.category);
+    save(act, d);
+  };
+}
+function delExp(id) { if (confirm('Delete this entry?')) save('deleteExpense', { id: id }); }
+
+// ---------- Manage categories ----------
+function catManage() {
+  var rows = S.cats.map(function (c) {
+    var t = c.Type || 'Expense';
+    return '<div class="crow"><span class="dot" style="background:' + esc(c.Color) + ';margin:0"></span><input id="n' + c.ID + '" value="' + esc(c.Name) + '"><select id="t' + c.ID + '"><option' + (t === 'Expense' ? ' selected' : '') + '>Expense</option><option' + (t === 'Income' ? ' selected' : '') + '>Income</option></select><button class="chip" onclick="catSave(\'' + c.ID + '\')">✓</button><button class="red" onclick="catDel(\'' + c.ID + '\')">🗑</button></div>';
+  }).join('') || '<p class="empty">No categories yet</p>';
+  modal('<h3>Manage categories</h3><p class="sub">Rename, change type, delete or add. Renaming also updates existing entries.</p><div class="mt">' + rows + '</div><div class="up">ADD NEW CATEGORY</div><div style="display:flex;gap:10px"><input id="cn" placeholder="e.g. Groceries"><select id="ct" style="width:130px;flex:none"><option>Expense</option><option>Income</option></select></div><button class="btn mt" id="ca">+ Add</button><div class="mfoot"><button class="ghost" id="mc">Done</button></div>');
+  $('mc').onclick = closeModal;
+  $('ca').onclick = function () {
+    var n = $('cn').value.trim(); if (!n) return toast('Enter a name');
+    catOp('addCategory', { name: n, type: $('ct').value, color: PALETTE[S.cats.length % PALETTE.length] });
+  };
+}
+function catSave(id) {
+  var c = S.cats.find(function (x) { return x.ID === id; }), n = $('n' + id).value.trim();
+  if (!n) return toast('Enter a name');
+  catOp('updateCategory', { id: id, name: n, type: $('t' + id).value, color: c.Color });
+}
+function catDel(id) { if (confirm('Delete this category? Existing entries keep their category name.')) catOp('deleteCategory', { id: id }); }
+function catOp(action, data) {
+  api(action, data).then(function (r) {
+    if (!r.ok) return toast(r.error);
+    toast('Saved');
+    load().then(function () { fillFilters(); draw(); catManage(); });
+  });
+}
+
+// ---------- Ledger export ----------
+function ledgerRows() {
+  var bal = 0;
+  return filtered().slice().sort(function (a, b) { return a.Date > b.Date ? 1 : -1; }).map(function (e) {
+    var i = eType(e) === 'Income', a = Number(e.Amount); bal += i ? a : -a;
+    return [e.Date, eType(e), e.Category, e.Note || '', i ? a : '', i ? '' : a, bal.toFixed(2), e.PaidBy || ''];
+  });
+}
+var LH = ['Date', 'Type', 'Category', 'Note', 'Income', 'Expense', 'Balance', 'By'];
+function ledgerCsv() {
+  var rows = ledgerRows(); if (!rows.length) return toast('No entries to export');
+  var q = function (v) { return '"' + String(v).replace(/"/g, '""') + '"'; };
+  var csv = '\ufeff' + [LH].concat(rows).map(function (r) { return r.map(q).join(','); }).join('\r\n');
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+  a.download = 'ledger-' + new Date().toISOString().slice(0, 10) + '.csv';
+  document.body.appendChild(a); a.click(); a.remove();
+}
+function ledgerPdf() {
+  var rows = ledgerRows(); if (!rows.length) return toast('No entries to export');
+  var list = filtered(), inc = sum(list, 'Income'), exp = sum(list, 'Expense');
+  var f = document.createElement('iframe'); f.style.cssText = 'position:fixed;width:0;height:0;border:0';
+  document.body.appendChild(f);
+  var d = f.contentWindow.document; d.open();
+  d.write('<html><head><title>Ledger</title><style>body{font-family:Arial;padding:20px}table{width:100%;border-collapse:collapse;font-size:12px}th,td{border:1px solid #ccc;padding:6px;text-align:left}th{background:#eef}</style></head><body><h2>Ledger</h2><p>Income: ' + money(inc) + ' &nbsp; Expenses: ' + money(exp) + ' &nbsp; Balance: ' + money(inc - exp) + '</p><table><tr>' + LH.map(function (h) { return '<th>' + h + '</th>'; }).join('') + '</tr>' + rows.map(function (r) { return '<tr>' + r.map(function (c) { return '<td>' + esc(c) + '</td>'; }).join('') + '</tr>'; }).join('') + '</table></body></html>');
+  d.close();
+  setTimeout(function () { f.contentWindow.focus(); f.contentWindow.print(); setTimeout(function () { f.remove(); }, 3000); }, 300);
+}
+
+// ---------- Settings: Admin Access Panel ----------
+function settings() {
+  $('title').textContent = 'Settings'; whoBox();
+  var pc = function (on, l) { return '<span class="' + (on ? 'on' : '') + '">' + l + '</span>'; };
+  var h = S.users.map(function (u) {
+    var adm = u.Role === 'admin', vb = (u.CanViewExpenses === '' || u.CanViewExpenses == null);
+    return '<div class="ucard"><div class="r1"><b>' + esc(u.Name) + '</b><small style="color:#64748b">@' + esc(u.Username) + '</small><span class="tag">' + esc(u.Role) + '</span>' + (T(u.Active) ? '' : '<span class="tag e">Disabled</span>') + '</div><div class="perm">' + pc(adm || vb || T(u.CanViewExpenses), 'View') + pc(adm || T(u.CanEditExpenses), 'Edit') + pc(adm || T(u.CanDeleteExpenses), 'Delete') + pc(adm || T(u.CanManageCategories), 'Categories') + '</div><div style="display:flex;gap:8px"><button class="chip sm" onclick="usrForm(\'' + u.ID + '\')">Edit</button><button class="red sm" style="border-radius:12px" onclick="delUsr(\'' + u.ID + '\')">Delete</button></div></div>';
+  }).join('');
+  $('view').innerHTML = '<button class="chip" id="bk" style="margin-bottom:14px">← Back to Expenses</button><div class="panel"><div class="sec"><h3>🔐 Admin Access Panel</h3><button class="btn sm" id="addU">+ Add User</button></div><p class="hint">Add users and choose what each one can do: View, Edit or Delete entries.</p>' + h + '</div>';
+  $('bk').onclick = function () { S.view = 'home'; render(); };
+  $('addU').onclick = function () { usrForm(); };
+}
+function usrForm(id) {
+  var u = id ? S.users.find(function (x) { return x.ID === id; }) : { Name: '', Username: '', Password: '', Role: 'user', CanViewExpenses: true, CanManageCategories: false, CanEditExpenses: true, CanDeleteExpenses: false, Active: true };
+  var vb = (u.CanViewExpenses === '' || u.CanViewExpenses == null);
+  var ck = function (i, v, l) { return '<div class="chk"><input type="checkbox" id="' + i + '"' + (v ? ' checked' : '') + '><span>' + l + '</span></div>'; };
+  modal('<h3>' + (id ? 'Edit' : 'Add') + ' user</h3><label>Full name</label><input id="un" value="' + esc(u.Name) + '"><div class="row2"><div><label>Username</label><input id="uu" value="' + esc(u.Username) + '"></div><div><label>Password</label><input id="up" value="' + esc(u.Password) + '"></div></div><label>Role</label><select id="ur"><option value="user"' + (u.Role === 'user' ? ' selected' : '') + '>User</option><option value="admin"' + (u.Role === 'admin' ? ' selected' : '') + '>Admin (full access)</option></select><div class="up">ACCESS FOR THIS USER</div>' +
+    ck('p0', vb || T(u.CanViewExpenses), 'View entries') + ck('p2', T(u.CanEditExpenses), 'Edit entries') + ck('p3', T(u.CanDeleteExpenses), 'Delete entries') + ck('p1', T(u.CanManageCategories), 'Add / edit / delete categories') + ck('pa', T(u.Active), 'Account active') +
+    '<div class="mfoot"><button class="ghost" id="mc">Cancel</button><button class="btn" id="ms">Save</button></div>');
+  var sync = function () { var a = $('ur').value === 'admin'; ['p0', 'p1', 'p2', 'p3'].forEach(function (i) { if (a) $(i).checked = true; $(i).disabled = a; }); };
+  $('ur').onchange = sync; sync();
+  $('mc').onclick = closeModal;
+  $('ms').onclick = function () {
+    var d = { id: id, name: $('un').value.trim(), username: $('uu').value.trim(), password: $('up').value, role: $('ur').value, canViewExpenses: $('p0').checked, canManageCategories: $('p1').checked, canEditExpenses: $('p2').checked, canDeleteExpenses: $('p3').checked, active: $('pa').checked };
+    if (!d.name || !d.username || !d.password) return toast('Fill name, username and password');
+    save(id ? 'updateUser' : 'addUser', d, id && String(id) === String(S.user.id) ? d : null);
+  };
+}
+function delUsr(id) { if (confirm('Delete this user?')) save('deleteUser', { id: id }); }
+
+// ---------- Modal / save ----------
+function modal(html) { $('mbox').innerHTML = html; $('modal').classList.remove('hide'); }
+function closeModal() { $('modal').classList.add('hide'); }
+$('modal').addEventListener('click', function (e) { if (e.target === $('modal')) closeModal(); });
+function save(action, data, selfUpdate) {
+  api(action, data).then(function (r) {
+    if (!r.ok) return toast(r.error);
+    closeModal(); toast('Saved');
+    if (selfUpdate) { S.cred = { username: selfUpdate.username, password: selfUpdate.password }; sessionStorage.setItem('cred', JSON.stringify(S.cred)); }
+    load().then(function () { render(); });
+  });
+}
+
+// auto-login for the session
+(function () {
+  var c = sessionStorage.getItem('cred');
+  if (c) { S.cred = JSON.parse(c); load().then(function (ok) { if (ok) start(); }); }
+})();
+</script>
+</body>
+</html>
