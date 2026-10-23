@@ -118,13 +118,18 @@ var $ = function (id) { return document.getElementById(id); };
 var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); };
 var money = function (n) { return '₹' + Number(n || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
 var T = function (v) { return v === true || String(v).toUpperCase() === 'TRUE'; };
-function toast(m) { var t = $('toast'); t.textContent = m; t.classList.remove('hide'); setTimeout(function () { t.classList.add('hide'); }, 2500); }
+function toast(m) { var t = $('toast'); t.textContent = m; t.classList.remove('hide'); setTimeout(function () { t.classList.add('hide'); }, m.length > 60 ? 7000 : 2500); }
 
 function api(action, data) {
+  if (!API_URL || API_URL.indexOf('PASTE_') === 0) return Promise.resolve({ ok: false, error: 'API_URL is not set in index.html' });
   var body = JSON.stringify({ action: action, username: S.cred.username, password: S.cred.password, data: data || {} });
   return fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: body })
-    .then(function (r) { return r.json(); })
-    .catch(function () { return { ok: false, error: 'Cannot reach the server. Check API_URL and deployment access (Anyone).' }; });
+    .then(function (r) { return r.text(); })
+    .then(function (t) {
+      try { return JSON.parse(t); }
+      catch (e) { return { ok: false, error: 'Server did not return JSON. Set access to Anyone, run setup() once to authorize, then deploy a New version. Got: ' + t.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 100) }; }
+    })
+    .catch(function (e) { return { ok: false, error: 'Cannot reach server (' + e.message + '). Check API_URL ends with /exec and access is Anyone.' }; });
 }
 function load() {
   return api('getAll').then(function (r) {
